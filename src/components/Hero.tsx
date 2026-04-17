@@ -32,7 +32,7 @@ export const Hero = () => {
       {/* Hero content */}
       <div className="container relative pt-10 md:pt-20 pb-24 md:pb-32 grid lg:grid-cols-12 gap-12 items-end min-h-[80svh]">
         <div className="lg:col-span-8 animate-fade-in">
-          <span className="tape text-primary border-primary/40">// EST. Reșița, RO</span>
+          <span className="tape text-primary border-primary/40">// Constanța, RO</span>
           <h1 className="mt-5 font-display leading-[0.85] tracking-tight text-[18vw] md:text-[10vw] lg:text-[9rem]">
             SASHA <br />
             <span className="display-stroke">DEEJAY</span>
