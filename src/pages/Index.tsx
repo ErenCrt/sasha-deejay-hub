@@ -7,7 +7,6 @@ import { Footer } from "@/components/Footer";
 const Index = () => {
   return (
     <main className="min-h-screen">
-      <h1 className="sr-only">Sasha Deejay — DJ & Rapper from Reșița, Romania</h1>
       <Hero />
       <LatestAlbum />
       <RecentUploads />
