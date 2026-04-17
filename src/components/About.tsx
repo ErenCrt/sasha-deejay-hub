@@ -20,7 +20,7 @@ export const About = () => {
           </h2>
 
           <p className="mt-6 text-2xl font-light leading-snug text-foreground">
-            From Moldova to Reșița, Constanța to the USA — and back. From break dance to the booth.
+            From Moldova to Reșița to Constanța to the USA — and back. From break dance to the booth.
             <span className="text-primary"> Four decades of rhythm.</span>
           </p>
 
