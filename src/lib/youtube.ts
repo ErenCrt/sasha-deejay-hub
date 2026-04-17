@@ -9,17 +9,18 @@ export type YTVideo = {
   thumbnail: string;
 };
 
+const FEED_URL = `https://www.youtube.com/feeds/videos.xml?channel_id=${YT_CHANNEL_ID}`;
+
 /**
  * Fetch latest uploads from YouTube channel RSS feed.
- * Uses r.jina.ai as a CORS-friendly read proxy (no key required).
- * Falls back gracefully if the feed cannot be reached.
+ * Tries multiple CORS-friendly read proxies. No API key required.
  */
 export async function fetchLatestVideos(limit = 6): Promise<YTVideo[]> {
-  const feedUrl = `https://www.youtube.com/feeds/videos.xml?channel_id=${YT_CHANNEL_ID}`;
-  // Try multiple proxies for resilience
   const sources = [
+    `https://api.allorigins.win/raw?url=${encodeURIComponent(FEED_URL)}`,
+    `https://corsproxy.io/?${encodeURIComponent(FEED_URL)}`,
+    `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(FEED_URL)}`,
     `https://r.jina.ai/http://www.youtube.com/feeds/videos.xml?channel_id=${YT_CHANNEL_ID}`,
-    `https://api.allorigins.win/raw?url=${encodeURIComponent(feedUrl)}`,
   ];
 
   for (const src of sources) {
@@ -38,32 +39,59 @@ export async function fetchLatestVideos(limit = 6): Promise<YTVideo[]> {
 
 function parseFeed(text: string): YTVideo[] {
   const items: YTVideo[] = [];
+
   // Try XML parser first
   try {
     const doc = new DOMParser().parseFromString(text, "text/xml");
-    const entries = Array.from(doc.getElementsByTagName("entry"));
-    for (const entry of entries) {
-      const id = entry.getElementsByTagName("yt:videoId")[0]?.textContent
-        || entry.getElementsByTagName("videoId")[0]?.textContent
-        || "";
-      const title = entry.getElementsByTagName("title")[0]?.textContent || "Untitled";
-      const published = entry.getElementsByTagName("published")[0]?.textContent || "";
-      if (id) {
+    const parserError = doc.getElementsByTagName("parsererror").length > 0;
+    if (!parserError) {
+      const entries = Array.from(doc.getElementsByTagName("entry"));
+      for (const entry of entries) {
+        const id =
+          entry.getElementsByTagName("yt:videoId")[0]?.textContent ||
+          entry.getElementsByTagName("videoId")[0]?.textContent ||
+          "";
+        const title = entry.getElementsByTagName("title")[0]?.textContent || "Untitled";
+        const published = entry.getElementsByTagName("published")[0]?.textContent || "";
+        if (id) {
+          items.push({
+            id,
+            title,
+            url: `https://www.youtube.com/watch?v=${id}`,
+            published,
+            thumbnail: `https://i.ytimg.com/vi/${id}/hqdefault.jpg`,
+          });
+        }
+      }
+      if (items.length) return items;
+    }
+  } catch {
+    /* fallthrough */
+  }
+
+  // Regex fallback — works on raw XML or markdown-ish text
+  const entryBlocks = text.split(/<entry[\s>]/i).slice(1);
+  if (entryBlocks.length) {
+    for (const block of entryBlocks) {
+      const idMatch = block.match(/<yt:videoId>([A-Za-z0-9_-]{11})<\/yt:videoId>/) || block.match(/([A-Za-z0-9_-]{11})/);
+      const titleMatch = block.match(/<title>([^<]+)<\/title>/);
+      const pubMatch = block.match(/<published>([^<]+)<\/published>/);
+      if (idMatch) {
+        const id = idMatch[1];
         items.push({
           id,
-          title,
+          title: titleMatch?.[1] ?? "Latest upload",
           url: `https://www.youtube.com/watch?v=${id}`,
-          published,
+          published: pubMatch?.[1] ?? "",
           thumbnail: `https://i.ytimg.com/vi/${id}/hqdefault.jpg`,
         });
       }
     }
     if (items.length) return items;
-  } catch {
-    /* fallthrough */
   }
-  // Regex fallback (jina returns markdown-ish text sometimes)
-  const idMatches = Array.from(text.matchAll(/(?:videoId[^A-Za-z0-9_-]+|watch\?v=)([A-Za-z0-9_-]{11})/g));
+
+  // Last resort: scan for any 11-char video IDs
+  const idMatches = Array.from(text.matchAll(/(?:videoId[^A-Za-z0-9_-]+|watch\?v=|\/vi\/)([A-Za-z0-9_-]{11})/g));
   const seen = new Set<string>();
   for (const m of idMatches) {
     const id = m[1];

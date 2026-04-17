@@ -1,4 +1,14 @@
 export const About = () => {
+  const timeline = [
+    { year: "1980", title: "Born in Moldova", text: "Born September 17 — adopted by Romanian parents and raised in Reșița." },
+    { year: "early 90s", title: "First love: break dance", text: "Discovered breaking on the streets of Reșița. The rhythm hit different." },
+    { year: "1994", title: "Move to Constanța", text: "At 14, packed up for the coast — a new city, a bigger scene." },
+    { year: "mid 90s", title: "3 years in the USA", text: "Crossed the Atlantic. Soaked up hip-hop culture at the source." },
+    { year: "1997", title: "West Tupeu crew", text: "Back in Constanța he founded West Tupeu — the crew of the era. Stage name: Alex Tupeu." },
+    { year: "2000s", title: "Label work", text: "Started working with labels across Constanța and nationwide. Studio sessions, shows, grind." },
+    { year: "now", title: "Behind the decks", text: "Transitioned into DJing — and never looked back. 45 and still spinning." },
+  ];
+
   return (
     <section id="about" className="container py-20 md:py-28">
       <div className="grid lg:grid-cols-12 gap-10 lg:gap-16 items-start">
@@ -7,34 +17,47 @@ export const About = () => {
           <h2 className="mt-3 font-display text-5xl md:text-7xl leading-none">
             About <span className="display-stroke">Sasha</span>
           </h2>
-        </div>
 
-        <div className="lg:col-span-7 space-y-6 text-lg leading-relaxed text-muted-foreground">
-          <p className="text-foreground text-2xl font-light leading-snug">
-            Sasha Deejay is a DJ and rapper repping <span className="text-primary">Reșița, Romania</span> —
-            blending raw street energy with electro-house heat and unfiltered bars.
-          </p>
-          <p>
-            From late-night Hindi electro mixes to introspective tracks like <em className="text-foreground">Fără Griji – Fără Filtre</em> and
-            the ongoing <em className="text-foreground">A2PEU Project</em>, his sound moves between the booth and the block.
-            Equal parts producer, performer and storyteller — building a catalogue that feels lived-in, not manufactured.
-          </p>
-          <p>
-            Currently rolling out a steady run of 2026 singles across Spotify, Apple Music and YouTube.
-            The vibe? <span className="text-foreground">Modern street.</span> No filter, no cap, no compromise.
+          <p className="mt-6 text-2xl font-light leading-snug text-foreground">
+            From Moldova to Reșița. From break dance to the booth.
+            <span className="text-primary"> Four decades of rhythm.</span>
           </p>
 
-          <div className="pt-6 grid grid-cols-3 gap-4">
+          <div className="mt-8 grid grid-cols-3 gap-4">
             {[
-              { k: "Singles", v: "10+" },
-              { k: "Era", v: "2026" },
-              { k: "Hometown", v: "Reșița" },
+              { k: "Born", v: "1980" },
+              { k: "Age", v: "45" },
+              { k: "Crew", v: "West Tupeu" },
             ].map((s) => (
               <div key={s.k} className="border-t border-border pt-3">
                 <div className="font-display text-3xl text-foreground">{s.v}</div>
-                <div className="font-mono text-[10px] uppercase tracking-widest mt-1">{s.k}</div>
+                <div className="font-mono text-[10px] uppercase tracking-widest mt-1 text-muted-foreground">{s.k}</div>
               </div>
             ))}
+          </div>
+        </div>
+
+        <div className="lg:col-span-7">
+          <ol className="relative border-l border-border pl-6 space-y-8">
+            {timeline.map((t, i) => (
+              <li key={i} className="relative animate-fade-in" style={{ animationDelay: `${i * 80}ms` }}>
+                <span className="absolute -left-[31px] top-1.5 grid place-items-center w-4 h-4 rounded-full bg-primary shadow-glow">
+                  <span className="w-1.5 h-1.5 rounded-full bg-primary-foreground" />
+                </span>
+                <div className="flex items-baseline gap-3 flex-wrap">
+                  <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-primary">{t.year}</span>
+                  <h3 className="font-display text-2xl tracking-wide text-foreground">{t.title}</h3>
+                </div>
+                <p className="mt-2 text-muted-foreground leading-relaxed">{t.text}</p>
+              </li>
+            ))}
+          </ol>
+
+          <div className="mt-10 border border-border bg-card/60 p-6">
+            <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">// Quote</p>
+            <p className="mt-2 text-lg leading-relaxed text-foreground">
+              "Started on the floor breaking. Ended up behind the decks. Same heartbeat, different stage."
+            </p>
           </div>
         </div>
       </div>
