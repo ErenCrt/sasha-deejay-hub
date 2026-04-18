@@ -57,19 +57,24 @@ export async function fetchLatestVideos(limit = 6): Promise<YTVideo[]> {
   const timeout = setTimeout(() => controller.abort(), 8000);
 
   try {
-    const result = await Promise.any(
-      proxies.map(async (build) => {
-        const res = await fetch(build(CHANNEL_PAGE), {
-          signal: controller.signal,
-          cache: "no-store",
-        });
-        if (!res.ok) throw new Error(`status ${res.status}`);
-        const text = await res.text();
-        const videos = parseChannelPage(text).slice(0, limit);
-        if (!videos.length) throw new Error("no videos parsed");
-        return videos;
-      })
-    );
+    // Race proxies — first one to return parsed videos wins.
+    const result = await new Promise<YTVideo[]>((resolve, reject) => {
+      let pending = proxies.length;
+      proxies.forEach((build) => {
+        fetch(build(CHANNEL_PAGE), { signal: controller.signal, cache: "no-store" })
+          .then(async (res) => {
+            if (!res.ok) throw new Error(`status ${res.status}`);
+            const text = await res.text();
+            const videos = parseChannelPage(text).slice(0, limit);
+            if (!videos.length) throw new Error("no videos");
+            resolve(videos);
+          })
+          .catch(() => {
+            pending -= 1;
+            if (pending === 0) reject(new Error("all proxies failed"));
+          });
+      });
+    });
     clearTimeout(timeout);
     writeCache(result);
     return result;
