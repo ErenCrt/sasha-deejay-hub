@@ -1,26 +1,31 @@
 import { useEffect, useState } from "react";
-import { fetchLatestVideos, YTVideo, YT_HANDLE_URL } from "@/lib/youtube";
+import { fetchLatestVideos, getCachedVideos, YTVideo, YT_HANDLE_URL } from "@/lib/youtube";
 import { Play, RefreshCw } from "lucide-react";
 
-const formatDate = (iso: string) => {
-  if (!iso) return "";
-  try {
-    return new Date(iso).toLocaleDateString(undefined, {
-      day: "2-digit", month: "short", year: "numeric",
-    });
-  } catch { return ""; }
+const formatDate = (s: string) => {
+  if (!s) return "";
+  if (/^\d{4}-\d{2}-\d{2}/.test(s)) {
+    try {
+      return new Date(s).toLocaleDateString(undefined, {
+        day: "2-digit", month: "short", year: "numeric",
+      });
+    } catch { return s; }
+  }
+  return s; // human strings like "2 weeks ago"
 };
 
 export const RecentUploads = () => {
-  const [videos, setVideos] = useState<YTVideo[]>([]);
-  const [loading, setLoading] = useState(true);
+  const cached = getCachedVideos();
+  const [videos, setVideos] = useState<YTVideo[]>(cached ?? []);
+  const [loading, setLoading] = useState(!cached);
   const [error, setError] = useState(false);
 
   const load = async () => {
-    setLoading(true); setError(false);
+    if (!videos.length) setLoading(true);
+    setError(false);
     const data = await fetchLatestVideos(6);
-    if (!data.length) setError(true);
-    setVideos(data);
+    if (data.length) setVideos(data);
+    else if (!videos.length) setError(true);
     setLoading(false);
   };
 
