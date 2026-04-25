@@ -15,7 +15,7 @@ export const About = () => {
         <div className="lg:col-span-5 lg:sticky lg:top-24">
           <span className="tape text-primary border-primary/40">// 01 — Profile</span>
           <h2 className="mt-3 font-display text-5xl md:text-7xl leading-none">
-            About <span className="display-stroke">Sasha</span>
+          About <span className="display-stroke">Sasha</span> <span>DEEJAY</span>
           </h2>
 
           <p className="mt-6 text-2xl font-light leading-snug text-foreground">
