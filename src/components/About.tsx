@@ -2,9 +2,9 @@ export const About = () => {
   const timeline = [
     { year: "1980", title: "Born in Moldova", text: "Born September 17 — adopted by Romanian parents and raised in Reșița." },
     { year: "early 90s", title: "First love: break dance", text: "Discovered breaking on the streets of Reșița. The rhythm hit different — and it stuck." },
-    { year: "1994", title: "Move to Constanța", text: "At 14, packed up for the coast. New city, bigger scene, new ambitions." },
-    { year: "mid 90s", title: "3 years in the USA", text: "Crossed the Atlantic. Soaked up hip-hop culture at the source — straight from the streets that built it." },
-    { year: "1997", title: "West Tupeu — the crew", text: "Back in Constanța, he founded West Tupeu, the breaking crew that defined the era. Stage name: Alex Tupeu. Battles, jams, street cyphers — they ran the city." },
+    { year: "1994", title: "Move to USA", text: "Crossed the Atlantic. Soaked up hip-hop culture at the source — straight from the streets that built it." },
+    { year: "mid 90s", title: "Comeback to Romania, but Constanta this time", text: "At 17, packed up for the coast. New city, bigger scene, new ambitions." },
+    { year: "1997", title: "West2Peu — the crew", text: "Back in Constanța, he founded West Tupeu, the breaking crew that defined the era. Stage name: Alex Tupeu. Battles, jams, street cyphers — they ran the city." },
     { year: "late 90s", title: "Crew legacy", text: "West Tupeu became one of the most respected b-boy crews of the '97 generation — putting Constanța on the map for breaking culture in Romania." },
     { year: "2000s", title: "Label work", text: "Pivoted into the studio. Started working with labels across Constanța and nationally — sessions, shows, grind." },
     { year: "now", title: "Behind the decks", text: "Transitioned into DJing — and never looked back. 45 and still spinning." },
@@ -20,7 +20,7 @@ export const About = () => {
           </h2>
 
           <p className="mt-6 text-2xl font-light leading-snug text-foreground">
-            From Moldova to Reșița to Constanța to the USA — and back. From break dance to the booth.
+            From Moldova to Reșița to USA to Constanta. From break dance to the booth.
             <span className="text-primary"> Four decades of rhythm.</span>
           </p>
 
@@ -28,7 +28,7 @@ export const About = () => {
             {[
               { k: "Born", v: "1980" },
               { k: "Age", v: "45" },
-              { k: "Crew", v: "West Tupeu" },
+              { k: "Crew", v: "West2Peu" },
             ].map((s) => (
               <div key={s.k} className="border-t border-border pt-3">
                 <div className="font-display text-3xl text-foreground">{s.v}</div>

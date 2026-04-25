@@ -46,7 +46,7 @@ export const LatestAlbum = () => {
               </div>
               <div>
                 <dt className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">Year</dt>
-                <dd className="mt-1 font-display text-xl">2026</dd>
+                <dd className="mt-1 font-display text-xl">{new Date().getFullYear()}</dd>
               </div>
             </dl>
           </div>
