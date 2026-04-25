@@ -10,7 +10,7 @@ export type YTVideo = {
   thumbnail: string;
 };
 
-const CHANNEL_PAGE = `https://www.youtube.com/@${YT_HANDLE}/videos`;
+const CHANNEL_PAGE = `https://www.youtube.com/@${YT_HANDLE}/videos?hl=en`;
 
 // Cache so refresh feels instant and we don't re-hit proxies
 const CACHE_KEY = "yt_uploads_v2";

@@ -2,12 +2,11 @@ export const About = () => {
   const timeline = [
     { year: "1980", title: "Born in Moldova", text: "Born September 17 — adopted by Romanian parents and raised in Reșița." },
     { year: "early 90s", title: "First love: break dance", text: "Discovered breaking on the streets of Reșița. The rhythm hit different — and it stuck." },
-    { year: "1994", title: "Move to USA", text: "Crossed the Atlantic. Soaked up hip-hop culture at the source — straight from the streets that built it." },
-    { year: "mid 90s", title: "Comeback to Romania, but Constanta this time", text: "At 17, packed up for the coast. New city, bigger scene, new ambitions." },
-    { year: "1997", title: "West2Peu — the crew", text: "Back in Constanța, he founded West Tupeu, the breaking crew that defined the era. Stage name: Alex Tupeu. Battles, jams, street cyphers — they ran the city." },
-    { year: "late 90s", title: "Crew legacy", text: "West Tupeu became one of the most respected b-boy crews of the '97 generation — putting Constanța on the map for breaking culture in Romania." },
+    { year: "mid 90s", title: "Constanta, road to success", text: "At 17, packed up for the coast. New city, bigger scene, new ambitions." },
+    { year: "1997", title: "West2Peu — the crew", text: "Back in Constanța, he founded West2Peu, the breaking crew that defined the era. Stage name: A2PEU  . Battles, jams, street cyphers — they ran the city." },
+    { year: "late 90s", title: "Crew legacy", text: "West2Peu became one of the most respected b-boys of the 90's - 2000's generation — putting Constanța on the map for break dancing culture in Romania." },
     { year: "2000s", title: "Label work", text: "Pivoted into the studio. Started working with labels across Constanța and nationally — sessions, shows, grind." },
-    { year: "now", title: "Behind the decks", text: "Transitioned into DJing — and never looked back. 45 and still spinning." },
+    { year: "now", title: "Behind the decks", text: "Transitioned into DJ-ing, and travelled around the world — and never looked back. 45 and still spinning." },
   ];
 
   return (

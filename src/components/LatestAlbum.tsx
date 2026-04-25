@@ -38,7 +38,7 @@ export const LatestAlbum = () => {
               </div>
               <div>
                 <dt className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">Based</dt>
-                <dd className="mt-1 font-display text-xl">Reșița, RO</dd>
+                <dd className="mt-1 font-display text-xl">United Kingdoom</dd>
               </div>
               <div>
                 <dt className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">Latest</dt>

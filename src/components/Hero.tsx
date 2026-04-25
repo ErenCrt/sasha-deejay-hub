@@ -73,7 +73,7 @@ export const Hero = () => {
         <div className="flex animate-marquee whitespace-nowrap py-3">
           {Array.from({ length: 2 }).map((_, i) => (
             <div key={i} className="flex items-center font-display text-2xl tracking-wider text-muted-foreground">
-                  {["NEW DROPS WEEKLY", "★", "A2PEU PROJECT", "★", "RESITA → USA → CONSTANTA", "★", "ELECTRO HOUSE × HIP HOP", "★", "OUT NOW", "★"].map((t, j) => (
+                  {["NEW DROPS WEEKLY", "★", "A2PEU PROJECT", "★", "RESITA → CONSTANTA", "★", "ELECTRO HOUSE × HIP HOP", "★", "OUT NOW", "★"].map((t, j) => (
                 <span key={j} className="px-6">{t}</span>
               ))}
             </div>
