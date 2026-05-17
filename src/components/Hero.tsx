@@ -1,4 +1,5 @@
 import heroImg from "@/assets/hero.jpg";
+import neonPortrait from "@/assets/sasha-neon.jpg";
 import { PlatformButton } from "./PlatformButton";
 import { Music2, Youtube, Apple } from "lucide-react";
 
@@ -33,10 +34,18 @@ export const Hero = () => {
       <div className="container relative pt-10 md:pt-20 pb-24 md:pb-32 grid lg:grid-cols-12 gap-12 items-end min-h-[80svh]">
         <div className="lg:col-span-8 animate-fade-in">
           <span className="tape text-primary border-primary/40">// Constanța, RO</span>
-          <h1 className="mt-5 font-display leading-[0.85] tracking-tight text-[18vw] md:text-[10vw] lg:text-[9rem]">
-            SASHA <br />
-            <span className="display-stroke">DEEJAY</span>
-          </h1>
+          <div className="mt-5 flex items-center gap-4 md:gap-6">
+            <img
+              src={neonPortrait}
+              alt="Sasha Deejay neon portrait"
+              className="w-20 h-28 md:w-28 md:h-40 lg:w-32 lg:h-44 object-cover rounded-md border border-primary/40 shadow-glow flex-shrink-0"
+              loading="eager"
+            />
+            <h1 className="font-display leading-[0.85] tracking-tight text-[14vw] md:text-[9vw] lg:text-[8rem]">
+              SASHA <br />
+              <span className="display-stroke">DEEJAY</span>
+            </h1>
+          </div>
           <p className="mt-6 max-w-xl text-lg text-muted-foreground">
             DJ. Rapper. Producer. Modern street sound straight out of Romania —
             mixes, singles and live cuts dropping all year.
