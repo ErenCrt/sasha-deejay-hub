@@ -88,35 +88,48 @@ function parseChannelPage(html: string): YTVideo[] {
   const videos: YTVideo[] = [];
   const seen = new Set<string>();
 
-  // YouTube embeds JSON like {"videoId":"XXX","thumbnail":...,"title":{"runs":[{"text":"..."}]}}
-  // Walk through every videoId occurrence and look for the nearest title afterwards.
-  const idRegex = /"videoId":"([A-Za-z0-9_-]{11})"/g;
-  let match: RegExpExecArray | null;
+  const decode = (raw: string) => {
+    try { return JSON.parse(`"${raw}"`); } catch { return raw; }
+  };
 
-  while ((match = idRegex.exec(html)) !== null) {
-    const id = match[1];
+  // Split the page into per-video blocks. YouTube now uses lockupViewModel
+  // (new) — fall back to videoRenderer (legacy) if needed.
+  const splitter = html.includes('"lockupViewModel":{')
+    ? '"lockupViewModel":{'
+    : '"videoRenderer":{';
+  const blocks = html.split(splitter).slice(1);
+
+  for (const raw of blocks) {
+    const block = raw.slice(0, 6000); // bound each block
+
+    const idMatch = block.match(/"videoId":"([A-Za-z0-9_-]{11})"/);
+    if (!idMatch) continue;
+    const id = idMatch[1];
     if (seen.has(id)) continue;
     seen.add(id);
 
-    // Look in the next ~1500 chars for an associated title
-    const window = html.slice(match.index, match.index + 1500);
-    let title = "Latest upload";
+    // Title — new structure: "title":{"content":"..."}
+    // Legacy: "title":{"runs":[{"text":"..."}]} or {"simpleText":"..."}
+    const titleNew = block.match(/"title":\s*\{\s*"content":\s*"((?:[^"\\]|\\.)*)"/);
+    const titleRun = block.match(/"title":\s*\{\s*"runs":\s*\[\s*\{\s*"text":\s*"((?:[^"\\]|\\.)*)"/);
+    const titleSimple = block.match(/"title":\s*\{\s*"simpleText":\s*"((?:[^"\\]|\\.)*)"/);
+    const rawTitle = titleNew?.[1] ?? titleRun?.[1] ?? titleSimple?.[1];
+    const title = rawTitle ? decode(rawTitle) : "Latest upload";
 
-    const titleRun = window.match(/"title":\s*\{\s*"runs":\s*\[\s*\{\s*"text":\s*"((?:[^"\\]|\\.)*)"/);
-    const titleSimple = window.match(/"title":\s*\{\s*"simpleText":\s*"((?:[^"\\]|\\.)*)"/);
-    const accessibility = window.match(/"accessibility":\s*\{[^}]*"label":\s*"((?:[^"\\]|\\.)*)"/);
+    // Skip non-video lockups (Add to queue, Save to playlist, etc.)
+    if (/^(Add to queue|Save to playlist|Share)$/i.test(title)) continue;
 
-    const raw = titleRun?.[1] ?? titleSimple?.[1] ?? accessibility?.[1];
-    if (raw) {
-      try {
-        title = JSON.parse(`"${raw}"`);
-      } catch {
-        title = raw;
-      }
+    // Published — new structure puts "1 month ago" inside metadataParts text.content.
+    // Find a content string that looks like a relative time.
+    let published = "";
+    const legacyPub = block.match(/"publishedTimeText":\s*\{\s*"simpleText":\s*"([^"]+)"/);
+    if (legacyPub) {
+      published = legacyPub[1];
+    } else {
+      const contents = [...block.matchAll(/"content":\s*"([^"]+)"/g)].map((m) => m[1]);
+      const timeRe = /\b(second|minute|hour|day|week|month|year)s?\s+ago\b/i;
+      published = contents.find((c) => timeRe.test(c)) ?? "";
     }
-
-    // Look for a published time hint like "2 weeks ago"
-    const published = window.match(/"publishedTimeText":\s*\{\s*"simpleText":\s*"([^"]+)"/)?.[1] ?? "";
 
     videos.push({
       id,
