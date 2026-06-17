@@ -93,6 +93,33 @@ export async function fetchLatestVideos(limit = 6): Promise<YTVideo[]> {
   }
 }
 
+function parseMarkdownChannelPage(markdown: string): YTVideo[] {
+  if (!markdown.includes("Markdown Content:") && !markdown.includes("### [")) return [];
+
+  const videos: YTVideo[] = [];
+  const seen = new Set<string>();
+  const videoRe = /### \[([^\]]+)\]\(https:\/\/www\.youtube\.com\/watch\?v=([A-Za-z0-9_-]{11})(?:[^)]*)\)\s*\n+([^\n]*\b\d+\s+(?:second|minute|hour|day|week|month|year)s?\s+ago\b)/gi;
+
+  for (const match of markdown.matchAll(videoRe)) {
+    const [, rawTitle, id, meta] = match;
+    if (seen.has(id)) continue;
+    seen.add(id);
+
+    const title = rawTitle.replace(/\\([\[\]()])/g, "$1").trim();
+    const published = meta.match(/\b\d+\s+(?:second|minute|hour|day|week|month|year)s?\s+ago\b/i)?.[0] ?? "";
+
+    videos.push({
+      id,
+      title,
+      url: `https://www.youtube.com/watch?v=${id}`,
+      published,
+      thumbnail: `https://i.ytimg.com/vi/${id}/hqdefault.jpg`,
+    });
+  }
+
+  return videos;
+}
+
 function parseChannelPage(page: string): YTVideo[] {
   const markdownVideos = parseMarkdownChannelPage(page);
   if (markdownVideos.length) return markdownVideos;
