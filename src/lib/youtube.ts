@@ -13,8 +13,17 @@ export type YTVideo = {
 const CHANNEL_PAGE = `https://www.youtube.com/@${YT_HANDLE}/videos?hl=en`;
 
 // Cache so refresh feels instant and we don't re-hit proxies
-const CACHE_KEY = "yt_uploads_v2";
+const CACHE_KEY = "yt_uploads_v4";
 const CACHE_TTL_MS = 10 * 60 * 1000; // 10 min
+
+const FALLBACK_VIDEOS: YTVideo[] = [
+  { id: "f90z-IHNE8k", title: "SASHA DEEJAY Under The Sky", published: "2 days ago", url: "https://www.youtube.com/watch?v=f90z-IHNE8k", thumbnail: "https://i.ytimg.com/vi/f90z-IHNE8k/hqdefault.jpg" },
+  { id: "a86GO9oir6M", title: "Sasha Deejay Himalaya", published: "2 weeks ago", url: "https://www.youtube.com/watch?v=a86GO9oir6M", thumbnail: "https://i.ytimg.com/vi/a86GO9oir6M/hqdefault.jpg" },
+  { id: "_gyRM5OI6RY", title: "Sasha Deejay (A2PEU Project) Reșița - Constanța", published: "2 months ago", url: "https://www.youtube.com/watch?v=_gyRM5OI6RY", thumbnail: "https://i.ytimg.com/vi/_gyRM5OI6RY/hqdefault.jpg" },
+  { id: "23JKok0SUPQ", title: "Sasha Deejay (A2PEU Project) Fara Griji - Fara Filtre", published: "2 months ago", url: "https://www.youtube.com/watch?v=23JKok0SUPQ", thumbnail: "https://i.ytimg.com/vi/23JKok0SUPQ/hqdefault.jpg" },
+  { id: "Z77w9ARoqhQ", title: "SASHA DEEJAY Dale Lento", published: "3 months ago", url: "https://www.youtube.com/watch?v=Z77w9ARoqhQ", thumbnail: "https://i.ytimg.com/vi/Z77w9ARoqhQ/hqdefault.jpg" },
+  { id: "a5_BvWalLw0", title: "Sasha Deejay One World - One Love", published: "3 months ago", url: "https://www.youtube.com/watch?v=a5_BvWalLw0", thumbnail: "https://i.ytimg.com/vi/a5_BvWalLw0/hqdefault.jpg" },
+];
 
 type Cached = { ts: number; videos: YTVideo[] };
 
@@ -47,9 +56,9 @@ export function getCachedVideos(): YTVideo[] | null {
  */
 export async function fetchLatestVideos(limit = 6): Promise<YTVideo[]> {
   const proxies = [
-    (u: string) => `https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`,
-    (u: string) => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(u)}`,
     (u: string) => `https://r.jina.ai/${u}`,
+    (u: string) => `https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`,
+    (u: string) => `https://api.codetabs.com/v1/proxy/?quest=${encodeURIComponent(u)}`,
     (u: string) => `https://thingproxy.freeboard.io/fetch/${u}`,
   ];
 
@@ -80,11 +89,41 @@ export async function fetchLatestVideos(limit = 6): Promise<YTVideo[]> {
     return result;
   } catch {
     clearTimeout(timeout);
-    return readCache() ?? [];
+    return readCache() ?? FALLBACK_VIDEOS.slice(0, limit);
   }
 }
 
-function parseChannelPage(html: string): YTVideo[] {
+function parseMarkdownChannelPage(markdown: string): YTVideo[] {
+  if (!markdown.includes("Markdown Content:") && !markdown.includes("### [")) return [];
+
+  const videos: YTVideo[] = [];
+  const seen = new Set<string>();
+  const videoRe = /### \[([^\]]+)\]\(https:\/\/www\.youtube\.com\/watch\?v=([A-Za-z0-9_-]{11})(?:[^)]*)\)\s*\n+([^\n]*\b\d+\s+(?:second|minute|hour|day|week|month|year)s?\s+ago\b)/gi;
+
+  for (const match of markdown.matchAll(videoRe)) {
+    const [, rawTitle, id, meta] = match;
+    if (seen.has(id)) continue;
+    seen.add(id);
+
+    const title = rawTitle.replace(/\\([\[\]()])/g, "$1").trim();
+    const published = meta.match(/\b\d+\s+(?:second|minute|hour|day|week|month|year)s?\s+ago\b/i)?.[0] ?? "";
+
+    videos.push({
+      id,
+      title,
+      url: `https://www.youtube.com/watch?v=${id}`,
+      published,
+      thumbnail: `https://i.ytimg.com/vi/${id}/hqdefault.jpg`,
+    });
+  }
+
+  return videos;
+}
+
+function parseChannelPage(page: string): YTVideo[] {
+  const markdownVideos = parseMarkdownChannelPage(page);
+  if (markdownVideos.length) return markdownVideos;
+
   const videos: YTVideo[] = [];
   const seen = new Set<string>();
 
@@ -94,10 +133,10 @@ function parseChannelPage(html: string): YTVideo[] {
 
   // Split the page into per-video blocks. YouTube now uses lockupViewModel
   // (new) — fall back to videoRenderer (legacy) if needed.
-  const splitter = html.includes('"lockupViewModel":{')
+  const splitter = page.includes('"lockupViewModel":{')
     ? '"lockupViewModel":{'
     : '"videoRenderer":{';
-  const blocks = html.split(splitter).slice(1);
+  const blocks = page.split(splitter).slice(1);
 
   for (const raw of blocks) {
     const block = raw.slice(0, 6000); // bound each block
